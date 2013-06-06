@@ -26,6 +26,7 @@ namespace VM_Manager
         private ContextMenuStrip _cms = new ContextMenuStrip();
         private ToolStripMenuItem _menuConnect = new ToolStripMenuItem("&Connect");
         private ToolStripMenuItem _menuShutdown = new ToolStripMenuItem("&Shutdown");
+        private ToolStripMenuItem _menuSuspend = new ToolStripMenuItem("S&uspend");
 
         public TrayContext(string[] args)
         {
@@ -61,6 +62,9 @@ namespace VM_Manager
             _menuConnect.Enabled = false;
             _menuConnect.Click += (s, e) => _connect();
             _cms.Items.Add(_menuConnect);
+            _menuSuspend.Enabled = false;
+            _menuSuspend.Click += (s, e) => _suspend();
+            _cms.Items.Add(_menuSuspend);
             _menuShutdown.Enabled = false;
             _menuShutdown.Click += (s, e) => _shutdown();
             _cms.Items.Add(_menuShutdown);
@@ -109,33 +113,73 @@ namespace VM_Manager
 
             ThreadPool.QueueUserWorkItem(delegate
             {
-                _virtualMachine = _virtualHost.Open(fileName);
-                _guestOs = new GuestOS(_virtualMachine);
+                try
+                {
+                    _virtualMachine = _virtualHost.Open(fileName);
+                    _guestOs = new GuestOS(_virtualMachine);
 
-                // power on this virtual machine
-                _virtualMachine.PowerOn(Consta.VIX_VMPOWEROP_NORMAL, VMWareInterop.Timeouts.PowerOnTimeout);
-                // wait for VMWare Tools
-                _virtualMachine.WaitForToolsInGuest(Consta.VIX_E_TIMEOUT_WAITING_FOR_TOOLS);
+                    // power on this virtual machine
+                    _virtualMachine.PowerOn(Consta.VIX_VMPOWEROP_NORMAL, VMWareInterop.Timeouts.PowerOnTimeout);
+                    // wait for VMWare Tools
+                    _virtualMachine.WaitForToolsInGuest(Consta.VIX_E_TIMEOUT_WAITING_FOR_TOOLS);
 
-                _menuConnect.Enabled = true;
-                _menuShutdown.Enabled = true;
-                _ni.BalloonTipClicked += (s, e) => _connect();
+                    _menuConnect.Enabled = true;
+                    _menuSuspend.Enabled = true;
+                    _menuShutdown.Enabled = true;
+                    _ni.BalloonTipClicked += (s, e) => _connect();
 
-                _ni.ShowBalloonTip(2 * 1000, System.IO.Path.GetFileName(fileName) + " is ready to rumble!", "Click to connect", ToolTipIcon.Info);
+                    _ni.ShowBalloonTip(2 * 1000, System.IO.Path.GetFileName(fileName) + " is ready to rumble!", "Click to connect", ToolTipIcon.Info);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(1);
+                }
+            });
+        }
+
+        private void _suspend()
+        {
+            _menuConnect.Enabled = false;
+            _menuSuspend.Enabled = false;
+            _menuShutdown.Enabled = false;
+
+            ThreadPool.QueueUserWorkItem(delegate
+            {
+                try
+                {                // power off
+                    _virtualMachine.Suspend(VMWareInterop.Timeouts.SuspendTimeout);
+
+                    _closeApplication();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(1);
+                }
             });
         }
 
         private void _shutdown()
         {
             _menuConnect.Enabled = false;
+            _menuSuspend.Enabled = false;
             _menuShutdown.Enabled = false;
 
             ThreadPool.QueueUserWorkItem(delegate
             {
-                // power off
-                _virtualMachine.ShutdownGuest(VMWareInterop.Timeouts.PowerOffTimeout); //.PowerOff();
+                try
+                {
+                    // power off
+                    _virtualMachine.ShutdownGuest(VMWareInterop.Timeouts.PowerOffTimeout); //.PowerOff();
 
-                _closeApplication();
+                    _closeApplication();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(1);
+                }
             });
         }
 
@@ -143,7 +187,15 @@ namespace VM_Manager
         {
             ThreadPool.QueueUserWorkItem(delegate
             {
-                Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\mstsc.exe", @"/v:" + _guestOs.IpAddress);
+                try
+                {
+                    Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.System) + @"\mstsc.exe", @"/v:" + _guestOs.IpAddress);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Environment.Exit(1);
+                }
             });
         }
 
