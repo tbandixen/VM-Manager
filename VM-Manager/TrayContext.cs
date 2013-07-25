@@ -27,6 +27,7 @@ namespace VM_Manager
         private ToolStripMenuItem _menuConnect = new ToolStripMenuItem("&Connect");
         private ToolStripMenuItem _menuShutdown = new ToolStripMenuItem("&Shutdown");
         private ToolStripMenuItem _menuSuspend = new ToolStripMenuItem("S&uspend");
+        private ToolStripMenuItem _menuCopyIp = new ToolStripMenuItem("Copy client &ip");
 
         public TrayContext(string[] args)
         {
@@ -59,6 +60,9 @@ namespace VM_Manager
 
             _ni.Icon = Properties.Resources.vmware;
 
+            _menuCopyIp.Enabled = false;
+            _menuCopyIp.Click += (s, e) => _copyIp();
+            _cms.Items.Add(_menuCopyIp);
             _menuConnect.Enabled = false;
             _menuConnect.Click += (s, e) => _connect();
             _cms.Items.Add(_menuConnect);
@@ -123,6 +127,8 @@ namespace VM_Manager
                     // wait for VMWare Tools
                     _virtualMachine.WaitForToolsInGuest(Consta.VIX_E_TIMEOUT_WAITING_FOR_TOOLS);
 
+                    _menuCopyIp.Text += " (" +  _guestOs.IpAddress + ")";
+                    _menuCopyIp.Enabled = true;
                     _menuConnect.Enabled = true;
                     _menuSuspend.Enabled = true;
                     _menuShutdown.Enabled = true;
@@ -138,8 +144,14 @@ namespace VM_Manager
             });
         }
 
+        private void _copyIp()
+        {
+            Clipboard.SetData(DataFormats.Text, (Object)_guestOs.IpAddress);
+        }
+
         private void _suspend()
         {
+            _menuCopyIp.Enabled = false;
             _menuConnect.Enabled = false;
             _menuSuspend.Enabled = false;
             _menuShutdown.Enabled = false;
@@ -162,6 +174,7 @@ namespace VM_Manager
 
         private void _shutdown()
         {
+            _menuCopyIp.Enabled = false;
             _menuConnect.Enabled = false;
             _menuSuspend.Enabled = false;
             _menuShutdown.Enabled = false;
