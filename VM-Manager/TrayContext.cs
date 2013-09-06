@@ -83,7 +83,7 @@ namespace VM_Manager
             // declaring a virtual host
             _virtualHost = new VMWareVirtualHost();
             // connect to a local VMWare Workstation virtual host
-            _virtualHost.ConnectToVMWarePlayer();
+            _virtualHost.ConnectToVMWarePlayer(VMWareInterop.Timeouts.ConnectTimeout);
 
             _ofd = new OpenFileDialog();
             _ofd.DefaultExt = ".vmx";
@@ -138,7 +138,7 @@ namespace VM_Manager
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "An error occurred during the boot proccess", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(1);
                 }
             });
@@ -166,7 +166,7 @@ namespace VM_Manager
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "An error occurred during the suspend proccess", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(1);
                 }
             });
@@ -190,7 +190,7 @@ namespace VM_Manager
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "An error occurred during the shutdown proccess", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(1);
                 }
             });
@@ -206,7 +206,7 @@ namespace VM_Manager
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, "An error occurred during the connect proccess", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(1);
                 }
             });

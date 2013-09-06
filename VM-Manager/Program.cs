@@ -19,7 +19,7 @@ namespace VM_Manager
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Es ist ein Fehler aufgetreten", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "An error occurred", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Environment.Exit(1);
             }
         }
