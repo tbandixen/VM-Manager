@@ -8,7 +8,7 @@ In order to use this VMWare Manager you must install the following VMWare softwa
 
 # Getting Started (C#)
 
-Download the latest version of this library [here](http://code.dblock.org/downloads/vmwaretasks/VMWareTasks-1.7.zip). Add a reference to `Vestris.VMWareLib.dll` to your project and a `using`. 
+Download the latest version of this library [here](http://code.dblock.org/downloads/vmwaretasks/). Add a reference to `Vestris.VMWareLib.dll` to your project and a `using`. 
 
 ``` csharp
 using Vestris.VMWareLib;
